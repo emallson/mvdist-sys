@@ -24,21 +24,13 @@ fn arr<T: Sized>(s: &[T]) -> *const T {
     s.as_ptr()
 }
 
-fn flatten<T: Sized + Clone>(m: &[Vec<T>]) -> Vec<T> {
-    let mut res = vec![];
-    for &ref v in m {
-        res.append(&mut v.clone());
-    }
-    res
-}
-
 
 pub fn mvdist(n: i32,
-              covrnc: &[Vec<f64>],
+              covrnc: &[f64],
               nu: i32,
               m: i32,
               lower: &[f64],
-              constr: &[Vec<f64>],
+              constr: &[f64],
               upper: &[f64],
               infin: &[i32],
               delta: &[f64],
@@ -52,11 +44,11 @@ pub fn mvdist(n: i32,
     let mut inform = 0i32;
     unsafe {
         __mvwrap_MOD_mvndist(&n,
-                             flatten(covrnc).as_ptr(),
+                             arr(covrnc),
                              &nu,
                              &m,
                              arr(lower),
-                             flatten(constr).as_ptr(),
+                             arr(constr),
                              arr(upper),
                              arr(infin),
                              arr(delta),
@@ -74,6 +66,14 @@ pub fn mvdist(n: i32,
 #[cfg(test)]
 mod test {
     use super::*;
+
+    fn flatten<T: Sized + Clone>(m: &[Vec<T>]) -> Vec<T> {
+        let mut res = vec![];
+        for &ref v in m {
+            res.append(&mut v.clone());
+        }
+        res
+    }
 
     #[test]
     fn mvtst_a() {
@@ -104,11 +104,11 @@ mod test {
         }
 
         let (error, value, nevals, inform) = mvdist(n as i32,
-                                                    &cov,
+                                                    &flatten(&cov),
                                                     nu,
                                                     m as i32,
                                                     &lower,
-                                                    &cns,
+                                                    &flatten(&cns),
                                                     &upper,
                                                     &infin,
                                                     &delta,
