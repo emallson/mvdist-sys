@@ -8,4 +8,4 @@ build = "build.rs"
 gcc = "0.3.41"
 
 [dependencies]
-libc = "0.2.19"
+libc = "0.2"
