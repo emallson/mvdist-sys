@@ -18,6 +18,21 @@ extern "C" {
                             value: *mut c_double,
                             nevals: *mut c_int,
                             inform: *mut c_int);
+    fn __mvstat_MOD_mvcrit(n: *const c_int,
+                           covrnc: *const c_double,
+                           nu: *const c_int,
+                           m: *const c_int,
+                           lower: *const c_double,
+                           constr: *const c_double,
+                           upper: *const c_double,
+                           infin: *const c_int,
+                           alpha: *const c_double,
+                           maxpts: *const c_int,
+                           abseps: *const c_double,
+                           error: *mut c_double,
+                           talpha: *mut c_double,
+                           nevals: *mut c_int,
+                           inform: *mut c_int);
 }
 
 fn arr<T: Sized>(s: &[T]) -> *const T {
@@ -61,6 +76,43 @@ pub fn mvdist(n: i32,
                              &mut inform);
     }
     (error, value, nevals, inform)
+}
+
+pub fn mvcrit(n: i32,
+              covrnc: &[f64],
+              nu: i32,
+              m: i32,
+              lower: &[f64],
+              constr: &[f64],
+              upper: &[f64],
+              infin: &[i32],
+              alpha: f64,
+              maxpts: i32,
+              abseps: f64)
+              -> (f64, f64, i32, i32) {
+    let mut error = 0f64;
+    let mut talpha = 0f64;
+    let mut nevals = 0i32;
+    let mut inform = 0i32;
+
+    unsafe {
+        __mvstat_MOD_mvcrit(&n,
+                            arr(covrnc),
+                            &nu,
+                            &m,
+                            arr(lower),
+                            arr(constr),
+                            arr(upper),
+                            arr(infin),
+                            &alpha,
+                            &maxpts,
+                            &abseps,
+                            &mut error,
+                            &mut talpha,
+                            &mut nevals,
+                            &mut inform);
+    }
+    (error, talpha, nevals, inform)
 }
 
 #[cfg(test)]
